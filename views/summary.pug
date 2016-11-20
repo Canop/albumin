@@ -1,0 +1,13 @@
+doctype html
+html
+	include head.pug
+	body.summary
+		include path.pug
+		#summary(style="background-image: url("+album.images[0].filename+")")
+			.side.mask
+			.center
+				.top.mask
+				each a in album.albums
+					a.mask(href=a.pageName)= a.title
+				.bottom.mask
+			.side.mask

@@ -1,0 +1,6 @@
+#path
+	each item in titles
+		if item.href
+			a(href=item.href)= item.title
+		else
+			span= item.title

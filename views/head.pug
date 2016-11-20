@@ -1,0 +1,109 @@
+head
+	meta(charset="utf-8")
+	title= album.title
+	script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js")
+	style.
+		html {
+			height: 100%;
+		}
+		body, #progressbar {
+			text-align: center;
+			padding:0;
+			margin:0;
+			font-family: Arial;
+		}
+		#progressbar td {
+			padding:5px;
+		}
+		p {
+			padding: 20px;
+			margin:0;
+			color: white;
+		}
+		a {
+			text-decoration: none;
+		}
+		img {
+			display: block;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		#path {
+			height: 40px;
+			display: flex;
+			align-items: stretch;
+			line-height: 40px;
+			width: 100%;
+		}
+		#path a, #path span {
+			background: linear-gradient(to right, #555, #444 15px, #333 70px, #333);
+		}
+		#path a:hover {
+			background: linear-gradient(to right, #333, #222 15px, #111 70px, #111);
+		}
+		#path a {
+			flex: 0 0 auto;
+			color: #ccc;
+			position: relative;
+			padding: 0 30px;
+		}
+		#path a::after {
+			position: absolute;
+			width: 0; 
+			height: 0;
+			content: "";
+			border-top:20px solid transparent;
+			border-bottom:20px solid transparent;
+			border-left:20px solid #333;
+			right: -20px;
+			z-index: 2;
+		}
+		#path a:hover::after {
+			border-left:20px solid #111;
+		}
+		#path span {
+			flex: 1 1 auto;
+			color: #eee;
+		}
+
+		body.summary {
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+		#summary {
+			flex: 1 1 auto;
+			display: flex;
+			align-items: stretch;
+			flex-direction: row;
+			background-repeat:no-repeat;
+			background-position: center center;
+			background-size: cover;
+		}
+		#summary .side {
+			flex: 1 1 auto;
+		}
+		#summary .center {
+			display: flex;
+			flex-direction: column;
+			flex: 0 1 900px;
+		}
+		#summary .mask {
+			background: rgba(0,0,0,.3);
+			transition: all .3s;
+		}
+		#summary a {
+			height: 40px;
+			line-height: 40px;
+			color: #ddd;
+			transition: all .3s;
+			text-shadow: 0 0 2px black;
+		}
+		#summary a.mask:hover {
+			background: rgba(0,0,0,0);
+			color: white;
+			transition: all .3s;
+		}
+		#summary .top, #summary .bottom {
+			flex: 1 1 auto;
+		}
