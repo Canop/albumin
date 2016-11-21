@@ -4,11 +4,13 @@ html
 	body
 		include path.pug
 		each img in album.images
+			if img.description
+				p= img.description
 			img(src=img.filename)
 		script.
 			$(document.body).prepend('<table id=progressbar cellspacing=0 width=100%><tr><td id=progress></td><td></td></tr></table>');
 			$('img').wrap('<div/>');
-			$('p').each(function(){ $(this).prependTo($(this).prev())});
+			$('p').each(function(){ $(this).prependTo($(this).next())});
 			var $images = $('img');
 			var N=$images.length, n=0;
 			$images.each(function(i){

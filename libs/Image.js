@@ -17,9 +17,10 @@ class Image {
 		var	conf = this.album.conf,
 			srcdir = this.album.srcdir,
 			dstdir = this.album.dstdir,
-			nameParts = this.srcfilename.match(/^([^\/]+?)(\s-.*)?\.jpe?g$/i);
-		this.filename = nameParts[0]+"-"+conf.dstwidth+"x"+conf.dstheight+".jpeg";
-		this.description = nameParts[1];
+			nameParts = this.srcfilename.match(/^(.+?)((?:\s+-\s*)(.*))?\.jpe?g$/i);
+		if (!nameParts) throw new Error("Internal Error: failed parsing " + this.srcfilename);
+		this.filename = nameParts[1]+"-"+conf.dstwidth+"x"+conf.dstheight+".jpeg";
+		this.description = nameParts[3];
 		this.dstpath = path.join(dstdir, this.filename);
 	}
 

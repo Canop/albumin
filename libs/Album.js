@@ -33,11 +33,13 @@ class Album {
 		console.log('title:', this.title);
 		var children = fs.readdirSync(srcdir);
 		console.log('children:', children);
-		children.forEach(c=>{
+		children
+		.filter(c=>c[0]!==".") // exclude hidden files
+		.forEach(c=>{
 			var	childsrcpath = path.join(srcdir, c),
 				cstats = fs.statSync(childsrcpath);
 			if (cstats.isDirectory()) {
-				var	nameToken = path.basename(c).split(/\s*-\s*/g),
+				var	nameToken = path.basename(c).split(/\s+-\s*/g),
 					childtitle = nameToken[nameToken.length-1],
 					childdstpath = path.join(dstdir, nameToken[0]);
 				this.albums.push(new Album(this, childtitle, childsrcpath, childdstpath));
