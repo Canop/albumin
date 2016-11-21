@@ -4,37 +4,8 @@ html
 	body
 		include path.pug
 		each img in album.images
-			if img.description
-				p= img.description
-			img(src=img.filename)
-		script.
-			$(document.body).prepend('<table id=progressbar cellspacing=0 width=100%><tr><td id=progress></td><td></td></tr></table>');
-			$('img').wrap('<div/>');
-			$('p').each(function(){ $(this).prependTo($(this).next())});
-			var $images = $('img');
-			var N=$images.length, n=0;
-			$images.each(function(i){
-				var	img = this,
-					$img = $(img);
-				function onload(){
-					var canvas = document.createElement("canvas");
-					var w=img.width, h=img.height;
-					canvas.width = w; canvas.height = h;
-					var c = canvas.getContext("2d");
-					c.drawImage(img, 0, 0);
-					var pixels = c.getImageData(0, 0, w, h).data;
-					var rgb = 'rgb('+[0,0,0].map(function(v,c){
-						var v=0;
-						for (var y=0; y<h; y++) {
-							v += pixels[w*y*4+c]+pixels[(w*y+w-1)*4+c];
-						}
-						return Math.ceil(v/(2*h));
-					}).join(',')+')';
-					$img.parent().css('background-color',rgb);
-					$('#progress').css({width: (++n/N)*100+'%', 'background-color':'#999'});
-					if (n==N) $('#progressbar').find('td').css('background-color','#999').end().fadeOut();
-				}
-				if (img.width) onload();
-				else img.onload = onload;
-			});
+			div(style="background:"+img.borderColor)
+				if (img.description)
+					p= img.description
+				img(src=img.filename, width=img.width, height=img.height)
 		include path.pug

@@ -1,6 +1,6 @@
 const	fs = require("fs"),
 	path = require("path"),
-	convert = require("imagemagick-native").convert;
+	imagemagick= require("imagemagick-native");
 
 class Image {
 
@@ -10,6 +10,9 @@ class Image {
 		this.filename = null;
 		this.description = null;
 		this.dstpath = null;
+		this.borderColor = null;
+		this.width = 0;
+		this.height = 0;
 		this._read();
 	}
 
@@ -27,12 +30,36 @@ class Image {
 	build(){
 		var conf = this.album.conf;
 		console.log("writing", this.dstpath);
-		fs.writeFileSync(this.dstpath, convert({
-			srcData: fs.readFileSync(path.join(this.album.srcdir, this.srcfilename)),
+		var srcData = fs.readFileSync(path.join(this.album.srcdir, this.srcfilename));
+		var srcDesc = imagemagick.identify({srcData});
+		var dstData = imagemagick.convert({
+			srcData,
 			width: conf.dstwidth,
 			height: conf.dstheight,
 			resizeStyle: "aspectfit"
+		});
+		var dstDesc = imagemagick.identify({srcData:dstData});
+		this.width = dstDesc.width;
+		this.height = dstDesc.height;
+		var pixels = imagemagick.getConstPixels({
+			srcData,
+			x: 0,
+			y: 0,
+			columns: 1,
+			rows: srcDesc.height
+		}).concat(imagemagick.getConstPixels({
+			srcData,
+			x: srcDesc.width-1,
+			y: 0,
+			columns: 1,
+			rows: srcDesc.height
 		}));
+		this.borderColor = 'rgb('+["red", "green", "blue"].map(function(key){
+			return Math.ceil(
+				pixels.reduce((s,p)=>s+p[key], 0) / (256* pixels.length)
+			);
+		}).join(',')+')';
+		fs.writeFileSync(this.dstpath, dstData);
 	}
 
 }

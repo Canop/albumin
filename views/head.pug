@@ -1,19 +1,15 @@
 head
 	meta(charset="utf-8")
 	title= album.title
-	script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js")
 	style.
 		html {
 			height: 100%;
 		}
-		body, #progressbar {
+		body {
 			text-align: center;
 			padding:0;
 			margin:0;
 			font-family: Arial;
-		}
-		#progressbar td {
-			padding:5px;
 		}
 		p {
 			padding: 20px;
@@ -98,6 +94,7 @@ head
 			color: #ddd;
 			transition: all .3s;
 			text-shadow: 0 0 2px black;
+			font-size: 110%;
 		}
 		#summary a.mask:hover {
 			background: rgba(0,0,0,0);
