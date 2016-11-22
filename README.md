@@ -10,6 +10,8 @@ From just directories and raw pictures, Albumin builds a complete deep browsable
 
 Directories and pictures in /example are built into [this site](http://dystroy.org/albumin-example).
 
+![file transformation](example-files.png)
+
 # Usage
 
 	node index.js sourceRootDirectory destinationRootDirectory
