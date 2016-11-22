@@ -30,29 +30,37 @@ class Image {
 	build(){
 		var conf = this.album.conf;
 		console.log("writing", this.dstpath);
-		var srcData = fs.readFileSync(path.join(this.album.srcdir, this.srcfilename));
-		var srcDesc = imagemagick.identify({srcData});
-		var dstData = imagemagick.convert({
-			srcData,
-			width: conf.dstwidth,
-			height: conf.dstheight,
-			resizeStyle: "aspectfit"
-		});
-		var dstDesc = imagemagick.identify({srcData:dstData});
+		var	srcData = fs.readFileSync(path.join(this.album.srcdir, this.srcfilename)),
+			srcDesc = imagemagick.identify({srcData}),
+			dstData,
+			dstDesc;
+		if (srcDesc.width>conf.dstwidth || srcDesc.height>conf.dstheight) {
+			dstData = imagemagick.convert({
+				srcData,
+				width: conf.dstwidth,
+				height: conf.dstheight,
+				resizeStyle: "aspectfit"
+			});
+			dstDesc = imagemagick.identify({srcData:dstData});
+		} else {
+			dstData = srcData;
+			dstDesc = srcDesc;
+		}
+
 		this.width = dstDesc.width;
 		this.height = dstDesc.height;
 		var pixels = imagemagick.getConstPixels({
-			srcData,
+			srcData: dstData,
 			x: 0,
 			y: 0,
 			columns: 1,
-			rows: srcDesc.height
+			rows: dstDesc.height
 		}).concat(imagemagick.getConstPixels({
-			srcData,
-			x: srcDesc.width-1,
+			srcData: dstData,
+			x: dstDesc.width-1,
 			y: 0,
 			columns: 1,
-			rows: srcDesc.height
+			rows: dstDesc.height
 		}));
 		this.borderColor = 'rgb('+["red", "green", "blue"].map(function(key){
 			return Math.ceil(
