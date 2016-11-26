@@ -9,3 +9,40 @@ html
 					p= img.description
 				img(src=img.filename, width=img.width, height=img.height)
 		include path.pug
+		script.
+			var timer;
+
+			function scrollTo(dest, duration) {
+			    if (duration <= 0) return;
+			    var delta = (dest - document.body.scrollTop)/ duration * 3;
+			    timer = setTimeout(function() {
+				document.body.scrollTop = document.body.scrollTop + delta;
+				if (document.body.scrollTop === dest) return;
+				scrollTo(dest, duration - 3);
+			    }, 3);
+			}
+
+			window.addEventListener("keyup", function(e){
+				// 38: up arrow      40: down arrow
+				if (e.which !== 38 && e.which !== 40) return;
+				var	pageCenter = window.innerHeight/2,
+					minDist,
+					currentIndex;
+				var images = [].filter.call(document.querySelectorAll("img"), function(img, i){
+					var h = img.height;
+					if (h<100) return false;
+					var r = img.getBoundingClientRect();
+					var center = r.top + r.height/2;
+					var dist = Math.abs(center-pageCenter);
+					if (!(dist>minDist)) {
+						minDist = dist;
+						currentIndex = i;
+					}
+					return true;
+				});
+				currentIndex += e.which === 38 ? -1 : 1;
+				var img = images[currentIndex];
+				if (!img) return;
+				clearTimeout(timer);
+				scrollTo(img.offsetTop - (window.innerHeight-img.clientHeight)/2, 200);
+			});
