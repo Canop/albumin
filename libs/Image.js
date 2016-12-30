@@ -29,6 +29,9 @@ class Image {
 
 	build(){
 		var conf = this.album.conf;
+		if (fs.existsSync(this.dstpath)) {
+			return;
+		}
 		console.log("writing", this.dstpath);
 		var	srcData = fs.readFileSync(path.join(this.album.srcdir, this.srcfilename)),
 			srcDesc = imagemagick.identify({srcData}),
