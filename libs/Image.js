@@ -29,9 +29,6 @@ class Image {
 
 	build(){
 		var conf = this.album.conf;
-		if (fs.existsSync(this.dstpath)) {
-			return;
-		}
 		console.log("writing", this.dstpath);
 		var	srcData = fs.readFileSync(path.join(this.album.srcdir, this.srcfilename)),
 			srcDesc = imagemagick.identify({srcData}),
@@ -70,6 +67,9 @@ class Image {
 				pixels.reduce((s,p)=>s+p[key], 0) / (256* pixels.length)
 			);
 		}).join(',')+')';
+		if (fs.existsSync(this.dstpath)) {
+			return;
+		}
 		fs.writeFileSync(this.dstpath, dstData);
 	}
 
