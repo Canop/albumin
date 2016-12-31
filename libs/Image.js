@@ -1,6 +1,40 @@
 const	fs = require("fs"),
 	path = require("path"),
-	imagemagick= require("imagemagick-native");
+	imagemagick= require("imagemagick-native"),
+	ALWAYS_OVERWRITE = false;
+
+// add to options the parameters needed to apply automatic orientation
+//  according to Exif data
+function autoOrient(exif, options){
+	console.log('exif:', exif);
+	if (!exif) return;
+	switch (exif.orientation) {
+	case 2:
+		options.rotate = 180;
+		options.flip = true;
+		break;
+	case 3:
+		options.rotate = 180;
+		break;
+	case 4:
+		options.flip = true;
+		break;
+	case 5: // unverified, probably wrong
+		options.rotate = 270;
+		options.flip = true;
+		break;
+	case 6:
+		options.rotate = 90;
+		break;
+	case 7: // unverified, probably wrong
+		options.rotate = 90;
+		options.flip = true;
+		break;
+	case 8:
+		options.rotate = -90;
+		break;
+	}
+}
 
 class Image {
 
@@ -34,18 +68,15 @@ class Image {
 			srcDesc = imagemagick.identify({srcData}),
 			dstData,
 			dstDesc;
-		if (srcDesc.width>conf.dstwidth || srcDesc.height>conf.dstheight) {
-			dstData = imagemagick.convert({
-				srcData,
-				width: conf.dstwidth,
-				height: conf.dstheight,
-				resizeStyle: "aspectfit"
-			});
-			dstDesc = imagemagick.identify({srcData:dstData});
-		} else {
-			dstData = srcData;
-			dstDesc = srcDesc;
-		}
+		var conversion = {
+			srcData,
+			width: Math.min(conf.dstwidth, srcDesc.width),
+			height: Math.min(conf.dstheight, srcDesc.height),
+			resizeStyle: "aspectfit"
+		};
+		autoOrient(srcDesc.exif, conversion);
+		dstData = imagemagick.convert(conversion);
+		dstDesc = imagemagick.identify({srcData:dstData});
 
 		this.width = dstDesc.width;
 		this.height = dstDesc.height;
@@ -67,10 +98,9 @@ class Image {
 				pixels.reduce((s,p)=>s+p[key], 0) / (256* pixels.length)
 			);
 		}).join(',')+')';
-		if (fs.existsSync(this.dstpath)) {
-			return;
+		if (ALWAYS_OVERWRITE || !fs.existsSync(this.dstpath)) {
+			fs.writeFileSync(this.dstpath, dstData);
 		}
-		fs.writeFileSync(this.dstpath, dstData);
 	}
 
 }
