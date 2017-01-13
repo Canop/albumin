@@ -6,7 +6,6 @@ const	fs = require("fs"),
 // add to options the parameters needed to apply automatic orientation
 //  according to Exif data
 function autoOrient(exif, options){
-	console.log('exif:', exif);
 	if (!exif) return;
 	switch (exif.orientation) {
 	case 2:
