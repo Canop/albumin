@@ -104,3 +104,25 @@ head
 		#summary .top, #summary .bottom {
 			flex: 1 1 auto;
 		}
+		#alert {
+			position: fixed;
+			left: 60px;
+			right: 60px;
+			top: 100px;
+			height: 200px;
+			background: rgba(18, 90, 99, 0.74);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			opacity: 0;
+			transition: all 2s;
+		}
+		#alert.visible {
+			opacity: 1;
+			transition: all 2s;
+		}
+		#alert p {
+			text-align: center;
+		}
+	
+

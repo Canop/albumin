@@ -33,7 +33,7 @@ class Album {
 		console.log('title:', this.title);
 		var children = fs.readdirSync(srcdir);
 		children
-		.filter(c=>c[0]!==".") // exclude hidden files
+		.filter(c => c[0]!=="." && c[0]!=="_") // exclude hidden files and work files
 		.forEach(c=>{
 			var	childsrcpath = path.join(srcdir, c),
 				cstats = fs.statSync(childsrcpath);
