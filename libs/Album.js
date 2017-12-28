@@ -1,7 +1,8 @@
 const	fs = require("fs"),
 	path = require("path"),
 	pug = require("pug"),
-	Image = require("./Image.js");
+	Image = require("./Image.js"),
+	Video = require("./Video.js");
 
 const	pagePug = pug.compileFile("views/page.pug"),
 	summaryPug = pug.compileFile("views/summary.pug");
@@ -13,7 +14,7 @@ class Album {
 		this.srcdir = srcdir;
 		this.dstdir = dstdir;
 		this.pageName = path.basename(dstdir);
-		this.images = [];
+		this.elements = []; // images & videos
 		this.albums = [];
 		this.conf = {
 			dstwidth: 1000,
@@ -43,7 +44,9 @@ class Album {
 					childdstpath = path.join(dstdir, nameToken[0]);
 				this.albums.push(new Album(this, childtitle, childsrcpath, childdstpath));
 			} else if (/[^\/]+\.jpe?g$/i.test(c)) {
-				this.images.push(new Image(this, c));
+				this.elements.push(new Image(this, c));
+			} else if (/[^\/]+\.mp4$/i.test(c)) {
+				this.elements.push(new Video(this, c));
 			} else {
 				console.log("ignored file:", c );
 			}
@@ -71,7 +74,7 @@ class Album {
 		if (!fs.existsSync(this.dstdir)) {
 			fs.mkdirSync(this.dstdir);
 		}
-		this.images.forEach(a=>{
+		this.elements.forEach(a=>{
 			a.build();
 		});
 		this.albums.forEach(a=>{

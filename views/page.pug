@@ -3,11 +3,11 @@ html
 	include head.pug
 	body
 		include path.pug
-		each img in album.images
+		each img in album.elements
 			div(style="background:"+img.borderColor)
 				if (img.description)
 					p= img.description
-				img(src=img.filename, width=img.width, height=img.height)
+				|!{img.html()}
 		#alert
 			p Utilisez les flèches haut et bas du clavier pour faire défiler les photos
 		include path.pug
@@ -49,6 +49,13 @@ html
 					if (!img) return;
 					clearTimeout(timer);
 					scrollTo(img.offsetTop - (window.innerHeight-img.clientHeight)/2, 200);
+				});
+				
+				[].forEach.call(document.getElementsByTagName("video"), function(v){
+					v.addEventListener("click", function(){
+						if (v.paused) v.play();
+						else v.pause();
+					});
 				});
 				
 				if (localStorage.getItem("albumin-alert")!="2") {

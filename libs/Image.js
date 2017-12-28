@@ -102,6 +102,10 @@ class Image {
 		}
 	}
 
+	html(){
+		return `<img src=${this.filename} width=${this.width} height=${this.height}>`;
+	}
+
 }
 
 module.exports = Image;
