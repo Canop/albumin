@@ -1,52 +1,8 @@
 const	fs = require("fs"),
 	path = require("path"),
 	util = require("util"),
-	gm = require("gm"),
-	//gm = require("gm").subClass({imageMagick: true}),
-	//imagemagick= require("imagemagick-native"),
-	ALWAYS_OVERWRITE = false;
-
-[
-	"size",
-	"identify",
-	"write"
-].forEach(key=>{ // aa: async-await
-	gm.prototype["aa"+key] = util.promisify(gm.prototype[key]);
-	//let f = util.promisify(gm.prototype[key]);
-	//gm["aa"+key] = o => f.call(o);
-});
-
-// add to options the parameters needed to apply automatic orientation
-//  according to Exif data
-function autoOrient(exif, options){
-	if (!exif) return;
-	switch (exif.orientation) {
-	case 2:
-		options.rotate = 180;
-		options.flip = true;
-		break;
-	case 3:
-		options.rotate = 180;
-		break;
-	case 4:
-		options.flip = true;
-		break;
-	case 5: // unverified, probably wrong
-		options.rotate = 270;
-		options.flip = true;
-		break;
-	case 6:
-		options.rotate = 90;
-		break;
-	case 7: // unverified, probably wrong
-		options.rotate = 90;
-		options.flip = true;
-		break;
-	case 8:
-		options.rotate = -90;
-		break;
-	}
-}
+	ALWAYS_OVERWRITE = false,
+	sharp = require("sharp");
 
 class Image {
 
@@ -63,7 +19,7 @@ class Image {
 	}
 
 	_read(){
-		var	conf = this.album.conf,
+		let	conf = this.album.conf,
 			srcdir = this.album.srcdir,
 			dstdir = this.album.dstdir,
 			nameParts = this.srcfilename.match(/^(.+?)((?:\s+-\s*)(.*))?\.jpe?g$/i);
@@ -73,115 +29,40 @@ class Image {
 		this.dstpath = path.join(dstdir, this.filename);
 	}
 
-	async build(){ // for use with gm
-		var conf = this.album.conf;
-		console.log("writing", this.dstpath);
-		//let srcData = fs.readFileSync(path.join(this.album.srcdir, this.srcfilename));
+	async build(){
+		let conf = this.album.conf;
+		console.log("working on", this.dstpath);
 		let srcpath = path.join(this.album.srcdir, this.srcfilename);
-		let img = gm(srcpath);
-		let srcsize = await img.aasize();
-		console.log('srcsize:', srcsize);
-		//let srcIdentify = await img.aaidentify();
-		//console.log('srcIdentify:', srcIdentify);
 
-		img.autoOrient().resize(
-			Math.min(conf.dstwidth, srcsize.width),
-			Math.min(conf.dstheight, srcsize.height),
-		);
-		await img.aawrite(this.dstpath);
+		let img = sharp(srcpath);
+		let srcinfo = await img.metadata();
 
-		img = gm(this.dstpath);
-		let dstsize = await img.aasize();
-		this.width = dstsize.width;
-		this.height = dstsize.height;
-
-		return;
-
-
-		var srcDesc = imagemagick.identify({srcData}),
-			dstData,
-			dstDesc;
-		var conversion = {
-			srcData,
-			width: Math.min(conf.dstwidth, srcDesc.width),
-			height: Math.min(conf.dstheight, srcDesc.height),
-			resizeStyle: "aspectfit"
-		};
-		autoOrient(srcDesc.exif, conversion);
-		dstData = imagemagick.convert(conversion);
-		dstDesc = imagemagick.identify({srcData:dstData});
-
-		this.width = dstDesc.width;
-		this.height = dstDesc.height;
-		var pixels = imagemagick.getConstPixels({
-			srcData: dstData,
-			x: 0,
-			y: 0,
-			columns: 1,
-			rows: dstDesc.height
-		}).concat(imagemagick.getConstPixels({
-			srcData: dstData,
-			x: dstDesc.width-1,
-			y: 0,
-			columns: 1,
-			rows: dstDesc.height
-		}));
-		this.borderColor = 'rgb('+["red", "green", "blue"].map(function(key){
-			return Math.ceil(
-				pixels.reduce((s,p)=>s+p[key], 0) / (256* pixels.length)
-			);
-		}).join(',')+')';
-		if (ALWAYS_OVERWRITE || !fs.existsSync(this.dstpath)) {
-			fs.writeFileSync(this.dstpath, dstData);
+		if (ALWAYS_OVERWRITE || !(fs.existsSync(this.dstpath))) {
+			await img
+			.rotate()
+			.resize(
+				Math.min(conf.dstwidth, srcinfo.width),
+				Math.min(conf.dstheight, srcinfo.height),
+			)
+			.max()
+			.toFile(this.dstpath);
 		}
-	}
 
-	buildImageMagick(){
-		var conf = this.album.conf;
-		console.log("writing", this.dstpath);
-		var	srcData = fs.readFileSync(path.join(this.album.srcdir, this.srcfilename)),
-			srcDesc = imagemagick.identify({srcData}),
-			dstData,
-			dstDesc;
-		var conversion = {
-			srcData,
-			width: Math.min(conf.dstwidth, srcDesc.width),
-			height: Math.min(conf.dstheight, srcDesc.height),
-			resizeStyle: "aspectfit"
-		};
-		autoOrient(srcDesc.exif, conversion);
-		dstData = imagemagick.convert(conversion);
-		dstDesc = imagemagick.identify({srcData:dstData});
-
-		this.width = dstDesc.width;
-		this.height = dstDesc.height;
-		var pixels = imagemagick.getConstPixels({
-			srcData: dstData,
-			x: 0,
-			y: 0,
-			columns: 1,
-			rows: dstDesc.height
-		}).concat(imagemagick.getConstPixels({
-			srcData: dstData,
-			x: dstDesc.width-1,
-			y: 0,
-			columns: 1,
-			rows: dstDesc.height
-		}));
-		this.borderColor = 'rgb('+["red", "green", "blue"].map(function(key){
-			return Math.ceil(
-				pixels.reduce((s,p)=>s+p[key], 0) / (256* pixels.length)
-			);
-		}).join(',')+')';
-		if (ALWAYS_OVERWRITE || !fs.existsSync(this.dstpath)) {
-			fs.writeFileSync(this.dstpath, dstData);
-		}
+		img = sharp(this.dstpath);
+		let { data, info:{width, height, channels} } = await img.raw().toBuffer({resolveWithObject: true});
+		this.width = width;
+		this.height = height;
+		this.borderColor = 'rgb('+[0,0,0].map((v, c)=>{
+			for (let y=0; y<height; y++) {
+				v += data[width*y*channels+c]+data[(width*y+width-1)*channels+c];
+			}
+			return Math.ceil(v/(2*height));
+		})+')';
 	}
 
 	html(){
 		return `<img src=${this.filename} width=${this.width} height=${this.height}>`;
 	}
-
 }
 
 module.exports = Image;

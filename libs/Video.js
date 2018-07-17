@@ -1,6 +1,5 @@
 const	fs = require("fs"),
 	path = require("path"),
-	//imagemagick= require("imagemagick-native"),
 	ALWAYS_OVERWRITE = false;
 
 class Video {
@@ -36,7 +35,8 @@ class Video {
 	}
 
 	html(){
-		return `<video width=${this.width} title="click to start video"><source src=${this.filename} type=video/mp4></video>`;
+		let title = "click to start video";
+		return `<video width=${this.width} title="${title}"><source src=${this.filename} type=video/mp4></video>`;
 	}
 
 }

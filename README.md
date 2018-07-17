@@ -24,9 +24,7 @@ When a directory contains other directories, it's handled as a summary page: a l
 
 # Installation
 
-You first need to have imagemagick installed.
-
-Then install other dependencies by running this in Albumin's directory:
+Fetch the albumin repository then run
 
 	npm install
 
