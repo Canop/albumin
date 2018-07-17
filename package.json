@@ -2,19 +2,18 @@
   "name": "albumin",
   "version": "1.0.0",
   "description": "simple album generator",
-  "author": "dystroy <denys.seguret@gmail.com> (https://dystroy.org)",
+  "author": "Denys Séguret <denys.seguret@gmail.com> (http://dystroy.org)",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Denys Séguret <denys.seguret@gmail.com> (http://dystroy.org)",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git://github.com/Canop/albumin.git"
   },
   "dependencies": {
-    "imagemagick-native": "^1.9.3",
+    "gm": "^1.23.1",
     "pug": "^2.0.0-beta6"
   }
 }

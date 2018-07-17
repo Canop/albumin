@@ -1,7 +1,20 @@
 const	fs = require("fs"),
 	path = require("path"),
-	imagemagick= require("imagemagick-native"),
+	util = require("util"),
+	gm = require("gm"),
+	//gm = require("gm").subClass({imageMagick: true}),
+	//imagemagick= require("imagemagick-native"),
 	ALWAYS_OVERWRITE = false;
+
+[
+	"size",
+	"identify",
+	"write"
+].forEach(key=>{ // aa: async-await
+	gm.prototype["aa"+key] = util.promisify(gm.prototype[key]);
+	//let f = util.promisify(gm.prototype[key]);
+	//gm["aa"+key] = o => f.call(o);
+});
 
 // add to options the parameters needed to apply automatic orientation
 //  according to Exif data
@@ -60,7 +73,70 @@ class Image {
 		this.dstpath = path.join(dstdir, this.filename);
 	}
 
-	build(){
+	async build(){ // for use with gm
+		var conf = this.album.conf;
+		console.log("writing", this.dstpath);
+		//let srcData = fs.readFileSync(path.join(this.album.srcdir, this.srcfilename));
+		let srcpath = path.join(this.album.srcdir, this.srcfilename);
+		let img = gm(srcpath);
+		let srcsize = await img.aasize();
+		console.log('srcsize:', srcsize);
+		//let srcIdentify = await img.aaidentify();
+		//console.log('srcIdentify:', srcIdentify);
+
+		img.autoOrient().resize(
+			Math.min(conf.dstwidth, srcsize.width),
+			Math.min(conf.dstheight, srcsize.height),
+		);
+		await img.aawrite(this.dstpath);
+
+		img = gm(this.dstpath);
+		let dstsize = await img.aasize();
+		this.width = dstsize.width;
+		this.height = dstsize.height;
+
+		return;
+
+
+		var srcDesc = imagemagick.identify({srcData}),
+			dstData,
+			dstDesc;
+		var conversion = {
+			srcData,
+			width: Math.min(conf.dstwidth, srcDesc.width),
+			height: Math.min(conf.dstheight, srcDesc.height),
+			resizeStyle: "aspectfit"
+		};
+		autoOrient(srcDesc.exif, conversion);
+		dstData = imagemagick.convert(conversion);
+		dstDesc = imagemagick.identify({srcData:dstData});
+
+		this.width = dstDesc.width;
+		this.height = dstDesc.height;
+		var pixels = imagemagick.getConstPixels({
+			srcData: dstData,
+			x: 0,
+			y: 0,
+			columns: 1,
+			rows: dstDesc.height
+		}).concat(imagemagick.getConstPixels({
+			srcData: dstData,
+			x: dstDesc.width-1,
+			y: 0,
+			columns: 1,
+			rows: dstDesc.height
+		}));
+		this.borderColor = 'rgb('+["red", "green", "blue"].map(function(key){
+			return Math.ceil(
+				pixels.reduce((s,p)=>s+p[key], 0) / (256* pixels.length)
+			);
+		}).join(',')+')';
+		if (ALWAYS_OVERWRITE || !fs.existsSync(this.dstpath)) {
+			fs.writeFileSync(this.dstpath, dstData);
+		}
+	}
+
+	buildImageMagick(){
 		var conf = this.album.conf;
 		console.log("writing", this.dstpath);
 		var	srcData = fs.readFileSync(path.join(this.album.srcdir, this.srcfilename)),

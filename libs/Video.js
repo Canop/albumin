@@ -1,6 +1,6 @@
 const	fs = require("fs"),
 	path = require("path"),
-	imagemagick= require("imagemagick-native"),
+	//imagemagick= require("imagemagick-native"),
 	ALWAYS_OVERWRITE = false;
 
 class Video {

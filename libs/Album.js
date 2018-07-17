@@ -70,16 +70,16 @@ class Album {
 	}
 
 
-	build(){
+	async build(){
 		if (!fs.existsSync(this.dstdir)) {
 			fs.mkdirSync(this.dstdir);
 		}
-		this.elements.forEach(a=>{
-			a.build();
-		});
-		this.albums.forEach(a=>{
-			a.build();
-		});
+		for (let a of this.elements) {
+			await a.build();
+		}
+		for (let a of this.albums) {
+			await a.build();
+		}
 		this._writeIndex();
 	}
 }

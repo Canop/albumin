@@ -11,4 +11,6 @@ var	src = process.argv[2],
 
 var	album = new Album(null, "Album", src, dst);
 
-album.build();
+!(async()=>{
+	await album.build();
+})();

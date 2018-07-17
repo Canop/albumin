@@ -1,8 +1,8 @@
 # Albumin
 Simple Hierarchical Album Generator
 
-[![Chat on Miaou](https://dystroy.org/miaou/static/shields/room-en.svg?v=1)](https://dystroy.org/miaou/8?Javascript)
-[![Chat on Miaou](https://dystroy.org/miaou/static/shields/room-fr.svg?v=1)](https://dystroy.org/miaou/3?Code_Croissants)
+[![Chat on Miaou](https://miaou.dystroy.org/static/shields/room-en.svg?v=1)](https://miaou.dystroy.org/8?Javascript)
+[![Chat on Miaou](https://miaou.dystroy.org/static/shields/room-fr.svg?v=1)](https://miaou.dystroy.org/3?Code_Croissants)
 
 From just directories and raw pictures, Albumin builds a complete deep browsable site, reducing pictures' size and computing pretty background colors in the making.
 
@@ -29,10 +29,6 @@ You first need to have imagemagick installed.
 Then install other dependencies by running this in Albumin's directory:
 
 	npm install
-
-# Customization
-
-There's none yet, because it was made for my own simple need. If you think you could use Albumin, contact me in the chat.
 
 # Licence
 
