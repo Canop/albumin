@@ -71,8 +71,8 @@ head
 		#summary {
 			flex: 1 1 auto;
 			display: flex;
-			align-items: stretch;
 			flex-direction: row;
+			align-items: stretch;
 			background-repeat:no-repeat;
 			background-position: center center;
 			background-size: cover;
@@ -86,23 +86,23 @@ head
 			flex: 0 1 900px;
 		}
 		#summary .mask {
-			background: rgba(0,0,0,.2);
 			transition: all .3s;
 		}
 		#summary a {
-			height: 30px;
-			line-height: 30px;
+			flex: 1 1 auto;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
 			color: #ddd;
 			transition: all .3s;
 			text-shadow: 0 0 2px black;
 		}
 		#summary a.mask:hover {
-			background: rgba(0,0,0,0);
 			color: white;
 			transition: all .3s;
 		}
 		#summary .top, #summary .bottom {
-			flex: 1 1 auto;
+			flex: 4 1 auto;
 		}
 		#alert {
 			position: fixed;

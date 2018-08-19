@@ -11,3 +11,22 @@ html
 					a.mask(href=a.pageName)= a.title
 				.bottom.mask
 			.side.mask
+	script.
+		var summary = document.getElementById("summary");
+		var sbc = summary.getBoundingClientRect();
+		function fit(){
+			var sbc = summary.getBoundingClientRect();
+			var nbitems = document.querySelectorAll("#summary .center a").length;
+			var h = (sbc.height-8) / nbitems | 0;
+			if (h<20) {
+				h = 20;
+				summary.style.overflow = "auto";
+				summary.style.padding = "20px";
+			} else if (h>32) {
+				h = 32;
+			}
+			summary.style.fontSize = (h*.8|0)+"px";
+			summary.style.lineHeight = (h)+"px";
+		}
+		window.onresize=fit;
+		fit();
