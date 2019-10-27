@@ -38,14 +38,19 @@ class Image {
 		let srcinfo = await img.metadata();
 
 		if (ALWAYS_OVERWRITE || !(fs.existsSync(this.dstpath))) {
-			await img
-			.rotate()
-			.resize(
-				Math.min(conf.dstwidth, srcinfo.width),
-				Math.min(conf.dstheight, srcinfo.height),
-			)
-			.max()
-			.toFile(this.dstpath);
+			try {
+				await img
+				.rotate()
+				.resize(
+					Math.min(conf.dstwidth, srcinfo.width),
+					Math.min(conf.dstheight, srcinfo.height),
+					{fit: "contain"}
+				)
+				.toFile(this.dstpath);
+			} catch (err) {
+				console.log("Error while working on ", srcpath);
+				console.error(err);
+			}
 		}
 
 		img = sharp(this.dstpath);
