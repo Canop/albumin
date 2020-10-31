@@ -34,35 +34,47 @@ class Image {
 		console.log("working on", this.dstpath);
 		let srcpath = path.join(this.album.srcdir, this.srcfilename);
 
-		let img = sharp(srcpath);
-		let srcinfo = await img.metadata();
-
-		if (ALWAYS_OVERWRITE || !(fs.existsSync(this.dstpath))) {
-			try {
-				await img
-				.rotate()
-				.resize(
-					Math.min(conf.dstwidth, srcinfo.width),
-					Math.min(conf.dstheight, srcinfo.height),
-					{fit: "contain"}
-				)
-				.toFile(this.dstpath);
-			} catch (err) {
-				console.log("Error while working on ", srcpath);
-				console.error(err);
-			}
+		try {
+			var img = sharp(srcpath, { failOnError: false });
+			var srcinfo = await img.metadata();
+		} catch (err) {
+			console.log("Error while working on ", srcpath);
+			console.error(err);
 		}
 
-		img = sharp(this.dstpath);
-		let { data, info:{width, height, channels} } = await img.raw().toBuffer({resolveWithObject: true});
+		if (ALWAYS_OVERWRITE || !fs.existsSync(this.dstpath)) {
+			await img
+			.rotate()
+			.resize(
+				Math.min(conf.dstwidth, srcinfo.width),
+				Math.min(conf.dstheight, srcinfo.height),
+				{fit: "contain"}
+			)
+			.toFile(this.dstpath)
+			.catch(err => {
+				console.log("Error while working on ", srcpath);
+				console.error(err);
+			});
+		}
+
+		img = sharp(this.dstpath, { failOnError: true });
+		var { data, info } = await img.raw()
+			.toBuffer({resolveWithObject: true})
+			.catch(err => {
+				console.log("Error while working on ", srcpath);
+				console.error(err);
+			});
+		console.log('info:', info);
+		var {width, height, channels} = info;
 		this.width = width;
 		this.height = height;
 		this.borderColor = 'rgb('+[0,0,0].map((v, c)=>{
-			for (let y=0; y<height; y++) {
+			for (let y=0; y<height; y+=50) {
 				v += data[width*y*channels+c]+data[(width*y+width-1)*channels+c];
 			}
 			return Math.ceil(v/(2*height));
 		})+')';
+		console.log("bc:", this.borderColor);
 	}
 
 	html(){

@@ -6,6 +6,8 @@ Simple Hierarchical Album Generator
 
 From just directories and raw pictures, Albumin builds a complete deep browsable site, reducing pictures' size and computing pretty background colors in the making.
 
+This is what *I* build from my online albums
+
 # Example
 
 Directories and pictures in /example are built into [this site](http://dystroy.org/albumin-example).
