@@ -2,7 +2,8 @@ const	fs = require("fs"),
 	path = require("path"),
 	util = require("util"),
 	ALWAYS_OVERWRITE = false,
-	sharp = require("sharp");
+	jo = require('jpeg-autorotate'),
+	Jimp = require("jimp");
 
 class Image {
 
@@ -34,47 +35,36 @@ class Image {
 		console.log("working on", this.dstpath);
 		let srcpath = path.join(this.album.srcdir, this.srcfilename);
 
-		try {
-			var img = sharp(srcpath, { failOnError: false });
-			var srcinfo = await img.metadata();
-		} catch (err) {
-			console.log("Error while working on ", srcpath);
-			console.error(err);
+		// we use jpeg-autorotate to fix the orientation because jimp is buggy on this
+		let img = fs.readFileSync(srcpath)
+		let rotated = await jo.rotate(img, {quality: 30})
+			.catch(err => {
+				// jo throws an error when the image is already right ^^
+				//console.log(err);
+			});
+		if (rotated) {
+			img = rotated;
 		}
 
-		if (ALWAYS_OVERWRITE || !fs.existsSync(this.dstpath)) {
-			await img
-			.rotate()
-			.resize(
-				Math.min(conf.dstwidth, srcinfo.width),
-				Math.min(conf.dstheight, srcinfo.height),
-				{fit: "contain"}
-			)
-			.toFile(this.dstpath)
+		await Jimp.read(img.buffer)
+			.then(img => {
+				let dst = img
+					.scaleToFit(conf.dstwidth, conf.dstheight)
+					.write(this.dstpath);
+				let width = this.width = dst.bitmap.width;
+				let height = this.height = dst.bitmap.height;
+				let data = dst.bitmap.data;
+				this.borderColor = 'rgb('+[0,0,0].map((v, c)=>{
+					for (let y=0; y<height; y++) {
+						v += data[width*y*4+c]+data[(width*y+width-1)*4+c];
+					}
+					return Math.ceil(v/(2*height));
+				})+')';
+				return dst;
+			})
 			.catch(err => {
-				console.log("Error while working on ", srcpath);
 				console.error(err);
 			});
-		}
-
-		img = sharp(this.dstpath, { failOnError: true });
-		var { data, info } = await img.raw()
-			.toBuffer({resolveWithObject: true})
-			.catch(err => {
-				console.log("Error while working on ", srcpath);
-				console.error(err);
-			});
-		console.log('info:', info);
-		var {width, height, channels} = info;
-		this.width = width;
-		this.height = height;
-		this.borderColor = 'rgb('+[0,0,0].map((v, c)=>{
-			for (let y=0; y<height; y+=50) {
-				v += data[width*y*channels+c]+data[(width*y+width-1)*channels+c];
-			}
-			return Math.ceil(v/(2*height));
-		})+')';
-		console.log("bc:", this.borderColor);
 	}
 
 	html(){
